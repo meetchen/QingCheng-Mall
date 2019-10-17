@@ -76,6 +76,8 @@ public class TemplateServiceImpl implements TemplateService {
      * @param template
      */
     public void add(Template template) {
+        template.setSpecNum(0);
+        template.setParaNum(0);
         templateMapper.insert(template);
     }
 

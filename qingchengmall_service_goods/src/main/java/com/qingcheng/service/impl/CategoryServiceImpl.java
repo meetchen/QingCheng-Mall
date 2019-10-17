@@ -92,6 +92,13 @@ public class CategoryServiceImpl implements CategoryService {
      * @param id
      */
     public void delete(Integer id) {
+        Example example = new Example(Category.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("parentId",id);
+        int count = categoryMapper.selectCountByExample(example);
+        if (count>0){
+            throw new RuntimeException("存在下级分类,不能删除");
+        }
         categoryMapper.deleteByPrimaryKey(id);
     }
 

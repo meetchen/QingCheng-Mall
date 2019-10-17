@@ -3,20 +3,25 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qingcheng.dao.SpecMapper;
+import com.qingcheng.dao.TemplateMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.goods.Spec;
+import com.qingcheng.pojo.goods.Template;
 import com.qingcheng.service.goods.SpecService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service(interfaceClass = SpecService.class)
 public class SpecServiceImpl implements SpecService {
 
     @Autowired
     private SpecMapper specMapper;
+    @Autowired
+    private TemplateMapper templateMapper;
 
     /**
      * 返回全部记录
@@ -73,10 +78,15 @@ public class SpecServiceImpl implements SpecService {
 
     /**
      * 新增
+     * 多个数据访问操作，使用事务注解
      * @param spec
      */
+    @Transactional
     public void add(Spec spec) {
         specMapper.insert(spec);
+        Template template = templateMapper.selectByPrimaryKey(spec.getTemplateId());
+        template.setSpecNum(template.getSpecNum()+1);
+        templateMapper.updateByPrimaryKey(template);
     }
 
     /**
@@ -88,10 +98,15 @@ public class SpecServiceImpl implements SpecService {
     }
 
     /**
-     *  删除
+     *  将模板中的规格数量减一 并进行删除操作
      * @param id
      */
+    @Transactional
     public void delete(Integer id) {
+        Spec spec = specMapper.selectByPrimaryKey(id);
+        Template template = templateMapper.selectByPrimaryKey(spec.getTemplateId());
+        template.setSpecNum(template.getSpecNum()-1);
+        templateMapper.updateByPrimaryKey(template);
         specMapper.deleteByPrimaryKey(id);
     }
 
