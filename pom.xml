@@ -10,16 +10,16 @@
     <modules>
         <module>qingchengmall_common</module>
         <module>qingchengmall_pojo</module>
-        <module>qingchengmall_service_user</module>
         <module>qingchengmall_service_goods</module>
-        <module>qingchengmall_service_business</module>
-        <module>qingchengmall_service_config</module>
-        <module>qingchengmall_service_order</module>
-        <module>qingchengmall_service_system</module>
         <module>qingchengmall_interface</module>
         <module>qingchengmall_web_manager</module>
         <module>qingchengmall_common_service</module>
         <module>qingchengmall_common_web</module>
+        <module>qingchengmall_service_business</module>
+        <module>qingchengmall_service_config</module>
+        <module>qingchengmall_service_order</module>
+        <module>qingchengmall_service_system</module>
+        <module>qingchengmall_service_user</module>
     </modules>
 
     <packaging>pom</packaging>

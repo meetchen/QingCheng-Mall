@@ -50,10 +50,6 @@
             <artifactId>mapper</artifactId>
             <version>4.1.4</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

@@ -65,6 +65,8 @@
 
                 <el-button class="dalfBut" @click="fetchData()">查询</el-button>
                 <el-button type="primary"  class="butT" @click="formVisible=true;pojo={}">新增</el-button>
+                <el-button type="primary"  class="butT" onclick="location.href='template.html'">模板列表</el-button>
+
                 </el-form>
             </div>
 
@@ -135,6 +137,7 @@
 <script src="/js/vue.js"></script>
 <script src="/js/axios.js"></script>
 <script src="/js/elementui.js"></script>
+<script src="/js/util.js"></script>
 <script>
      new Vue({
         el: '#app',
@@ -151,6 +154,7 @@
             }
         },
         created(){
+            this.searchMap={templateId: getQ}
             this.fetchData();
         },
         methods:{
