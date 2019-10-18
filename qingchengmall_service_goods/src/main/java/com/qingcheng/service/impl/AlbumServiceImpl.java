@@ -19,14 +19,6 @@ public class AlbumServiceImpl implements AlbumService {
     private AlbumMapper albumMapper;
 
 
-    /**
-     * 返回urlList
-     * @param id
-     * @return
-     */
-    public String findImgUrlList(Integer id){
-        return albumMapper.selectByPrimaryKey(id).getImageItems();
-    }
 
     /**
      * 返回全部记录

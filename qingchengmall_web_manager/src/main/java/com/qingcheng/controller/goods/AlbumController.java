@@ -17,10 +17,7 @@ public class AlbumController {
     private AlbumService albumService;
 
 
-    @GetMapping("/findUrlList")
-    public String findUrlImage(Integer id){
-        return albumService.findImgUrlList(id);
-    }
+
 
     @GetMapping("/findAll")
     public List<Album> findAll(){

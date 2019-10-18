@@ -42,6 +42,11 @@
   </head>
   <body class="hold-transition">
     <div id="app">
+        <li v-for="item in imageUrlList">
+            <p>{{item.url}}</p>
+            <p>{{item}}</p>
+
+        </li>
     </div>
   </body>
   <script src="/js/vue.js"></script>
@@ -60,17 +65,20 @@
           searchMap: {},
           pojo: {},
           formVisible: false,
-          imageUrl: ''
+          imageUrl: '',
+          imageUrlList:[]
         }
       },
       created() {
         this.queryList()
-      },
+      }, 
       methods: {
         queryList(){
-            axios.get(`/album/findUrlList.do?id=${getQueryString('id')}`).then(Response=>{
+            axios.get(`/album/findById.do?id=${getQueryString('id')}`).then(Response=>{
                 console.log(getQueryString('id'))
-                console.log(Response.data);
+                console.log(Response.data)
+                this.imageUrlList=Response.data
+                console.log(this.imageUrlList);
                 
             })
         }
