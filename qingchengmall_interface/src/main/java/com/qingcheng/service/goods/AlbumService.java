@@ -10,6 +10,9 @@ import java.util.*;
 public interface AlbumService {
 
 
+    public String findImgUrlList(Integer id);
+
+
     public List<Album> findAll();
 
 

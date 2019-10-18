@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>brand管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../plugins/font-awesome/css/font-awesome.min.css"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <style>
+      .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar-uploader .el-upload:hover {
+        border-color: #409eff;
+      }
+      .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 150px;
+        height: 70px;
+        line-height: 150px;
+        text-align: center;
+      }
+      .avatar {
+        width: 150px;
+        height: 70px;
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="hold-transition">
+    <div id="app">
+    </div>
+  </body>
+  <script src="/js/vue.js"></script>
+  <script src="/js/axios.js"></script>
+  <script src="/js/elementui.js"></script>
+  <script src="/js/util.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          tableData: [],
+          currentPage: 1,
+          total: 10,
+          size: 10,
+          searchMap: {},
+          pojo: {},
+          formVisible: false,
+          imageUrl: ''
+        }
+      },
+      created() {
+        this.queryList()
+      },
+      methods: {
+        queryList(){
+            axios.get(`/album/findUrlList.do?id=${getQueryString('id')}`).then(Response=>{
+                console.log(getQueryString('id'))
+                console.log(Response.data);
+                
+            })
+        }
+      }
+    })
+  </script>
+</html>
