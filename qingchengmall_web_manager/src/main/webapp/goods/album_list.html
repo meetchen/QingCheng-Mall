@@ -38,35 +38,65 @@
         height: 70px;
         display: block;
       }
+      .time {
+        font-size: 13px;
+        color: #999;
+      }
+      
+      .bottom {
+        margin-top: 13px;
+        line-height: 12px;
+      }
+
+      .button {
+        padding: 0;
+        float: right;
+      }
+
+      .image {
+        width: 100%;
+        display: block;
+      }
+
+      .clearfix:before,
+      .clearfix:after {
+          display: table;
+          content: "";
+      }
+      
+      .clearfix:after {
+          clear: both
+      }
     </style>
   </head>
   <body class="hold-transition">
     <div id="app">
-   
-    <el-table
-      :data="imageUrlList"
-      style="width: 100%">
-      <el-table-column
-        width="180">
-        <template slot-scope="scope">
-            <img :src="scope.row.url" width="100px" height="50px" />
-        </template>
-      </el-table-column>
-
-    </el-table>
-    </div>
-
-    <div class="pagination-container">
-      <el-pagination
-        class="pagiantion"
-        @size-change="fetchData"
-        @current-change="fetchData"
-        :current-page.sync="currentPage"
-        :page-sizes="[10, 20, 30, 40]"
-        :page-size="size"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
-      </el-pagination>
+      <el-row>
+          <el-col :span="8" v-for="item in imageUrlList" :key="item.uid" :offset="this.total > 0 ? 2 : 0">
+            <el-card :body-style="{ padding: '0px' }">
+                <img v-bind:src="item.url" class="image">
+              <div style="padding: 14px;">
+                <span>好吃的汉堡</span>
+                <div class="bottom clearfix">
+                  <time class="time">{{ currentDate }}</time>
+                  <el-button type="text" class="button">操作按钮</el-button>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <div class="pagination-container">
+            <el-pagination
+              class="pagiantion"
+              @size-change="fetchData"
+              @current-change="fetchData"
+              :current-page.sync="currentPage"
+              :page-sizes="[10, 20, 30, 40]"
+              :page-size="size"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total">
+            </el-pagination>
+        </div>
     </div>
   </body>
   <script src="/js/vue.js"></script>
@@ -78,6 +108,7 @@
       el: '#app',
       data() {
         return {
+          currentDate:new Date(),
           tableData: [],
           currentPage: 1,
           total: 10,
@@ -90,13 +121,12 @@
         }
       },
       created() {
-        
         this.fetchData()
       }, 
       methods: {
         fetchData(){
           axios.get(`/album/findById.do?id=${getQueryString('id')}`).then(Response=>{
-            this.imageUrlList=JSON.parse(Response.data.imageItems)            
+            this.imageUrlList=JSON.parse(Response.data.imageItems)
           })
         }
       }
