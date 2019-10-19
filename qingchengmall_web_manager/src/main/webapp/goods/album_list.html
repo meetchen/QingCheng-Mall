@@ -44,9 +44,23 @@
     <div id="app">
         <li v-for="item in imageUrlList">
             <p>{{item.url}}</p>
-            <p>{{item}}</p>
-
         </li>
+        <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="date"
+          label="日期"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="地址">
+        </el-table-column>
+    </el-table>
     </div>
   </body>
   <script src="/js/vue.js"></script>
@@ -70,17 +84,16 @@
         }
       },
       created() {
-        this.queryList()
+        this.searchMap.id={id:getQueryString('id')}
+        this.fetchData()
       }, 
       methods: {
-        queryList(){
-            axios.get(`/album/findById.do?id=${getQueryString('id')}`).then(Response=>{
-                console.log(getQueryString('id'))
-                console.log(Response.data)
-                this.imageUrlList=Response.data
-                console.log(this.imageUrlList);
-                
-            })
+        fetchData(){
+          axios.post(`/album/findList.do?page=${this.currentPage}&size=${this.size}`,this.searchMap).then(Response=>{
+            console.log(Response.data);           
+            this.tableData=Response.data
+            this.imageUrlList=Response.data.imageItems                               
+          })
         }
       }
     })

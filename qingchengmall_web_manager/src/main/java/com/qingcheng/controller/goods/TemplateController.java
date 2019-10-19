@@ -23,7 +23,6 @@ public class TemplateController {
 
     @GetMapping("/findPage")
     public PageResult<Template> findPage(int page, int size){
-        System.out.println(templateService.findAll());
         return templateService.findPage(page, size);
     }
 

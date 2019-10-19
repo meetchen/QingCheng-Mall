@@ -36,6 +36,7 @@ public class AlbumController {
 
     @PostMapping("/findPage")
     public PageResult<Album> findPage(@RequestBody Map<String,Object> searchMap,int page, int size){
+        System.out.println(searchMap);
         return  albumService.findPage(searchMap,page,size);
     }
 
