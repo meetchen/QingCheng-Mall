@@ -1,22 +1,37 @@
 package com.qingcheng.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.qingcheng.dao.CategoryBrandMapper;
+import com.qingcheng.dao.CategoryMapper;
+import com.qingcheng.dao.SkuMapper;
 import com.qingcheng.dao.SpuMapper;
 import com.qingcheng.entity.PageResult;
-import com.qingcheng.pojo.goods.Spu;
+import com.qingcheng.pojo.goods.*;
 import com.qingcheng.service.goods.SpuService;
+import com.qingcheng.util.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service(interfaceClass = SpuService.class)
 public class SpuServiceImpl implements SpuService {
 
     @Autowired
     private SpuMapper spuMapper;
+    @Autowired
+    private SkuMapper skuMapper;
+    @Autowired
+    private IdWorker idWorker;
+    @Autowired
+    private CategoryMapper categoryMapper;
+    @Autowired
+    private CategoryBrandMapper categoryBrandMapper;
 
     /**
      * 返回全部记录
@@ -93,6 +108,43 @@ public class SpuServiceImpl implements SpuService {
      */
     public void delete(String id) {
         spuMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * 保存商品
+     * @param goods
+     */
+    @Transactional
+    public void saveGoods(Goods goods) {
+        Spu spu = goods.getSpu();
+        spu.setId(idWorker.nextId()+"");
+        spuMapper.insert(spu);
+        List<Sku> skuList = goods.getSkuList();
+        Date date =new Date();
+        Category category = categoryMapper.selectByPrimaryKey(spu.getCategory3Id());
+        for (Sku sku : skuList) {
+            sku.setId(idWorker.nextId()+"");
+            sku.setSpuId(spu.getId());
+            String name = spu.getName();
+            Map<String,String> specMap = JSON.parseObject(sku.getSpec(), Map.class);
+            for (String value : specMap.values()) {
+                name+=""+value;
+            }
+            sku.setCreateTime(date);
+            sku.setUpdateTime(date);
+            sku.setCategoryId(spu.getCategory3Id());
+            sku.setCategoryName(category.getName());
+            sku.setName(name);
+            sku.setCommentNum(0);
+            sku.setSaleNum(0);
+            skuMapper.insert(sku);
+        }
+        CategoryBrand categoryBrand = new CategoryBrand();
+        categoryBrand.setCategoryId(spu.getCategory3Id());
+        categoryBrand.setBrandId(spu.getBrandId());
+        if (categoryBrandMapper.selectCount(categoryBrand)==0){
+            categoryBrandMapper.insert(categoryBrand);
+        }
     }
 
     /**

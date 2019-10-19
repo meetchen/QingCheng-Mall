@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>album_list管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- 上传图片框样式，不使用上传组件可以删除此样式 -->
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 150px;
+            height: 70px;
+            line-height: 150px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 70px;
+            display: block;
+        }
+
+
+        .bottom {
+            margin-top: 8px;
+            line-height: 12px;
+        }
+
+        .button {
+            padding: 0;
+            float: right;
+        }
+
+        .image {
+            width: 100%;
+            display: block;
+        }
+
+        .clearfix:before,
+        .clearfix:after {
+            display: table;
+            content: "";
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+
+    <div class="content-header">
+        <h1>管理
+            <small>album_list管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>管理</el-breadcrumb-item>
+            <el-breadcrumb-item>album_list管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+
+    <div class="app-container">
+        <div class="box">
+
+            <el-button type="primary" class="butT" @click="formVisible=true;">新增</el-button>
+            <el-button type="primary" class="butT" onclick="location.href='album.html';">返回</el-button>
+
+            <el-row>
+                <el-col :span="3" v-for="item in imageList" :key="item.uid">
+                    <el-card :body-style="{ padding: '5px' }">
+                        <img :src="item.url" class="image" width="200px" height="200px">
+                        <div style="padding: 0px;">
+                            <div class="bottom clearfix">
+                                <el-button type="danger" size="mini" size="small" class="button" @click="dele(index)">删除图片</el-button>
+                            </div>
+                        </div>
+                    </el-card>
+                </el-col>
+            </el-row>
+
+            <div class="add-form">
+                <!--弹出窗口-->
+                <el-dialog title="编辑" :visible.sync="formVisible">
+                    <el-form label-width="80px">
+                        <el-form-item label="图片">
+                            <el-upload
+                                    class="avatar-uploader"
+                                    action="/upload/native.do"
+                                    :show-file-list="false"
+                                    :on-success="handleAvatarSuccess"
+                                    :before-upload="beforeAvatarUpload">
+                                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-button type="primary" @click="save()">保存</el-button>
+                            <el-button @click="formVisible = false">关闭</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</body>
+<script src="/js/vue.js"></script>
+<script src="/js/axios.js"></script>
+<script src="/js/elementui.js"></script>
+<script src="/js/util.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                pojo: {},
+                formVisible: false,
+                imageList: [],
+                imageUrl: ''
+            }
+        },
+        created() {
+            this.listImage();
+        },
+        methods: {
+            listImage() {
+                axios.get(`/album/findById.do?id=${getQueryString('id')}`).then(resp => {
+                    
+                    this.pojo = resp.data;
+                    this.imageList = JSON.parse(resp.data.imageItems)
+                })
+            },
+            save() {
+                this.imageList.push(this.imageUrl);
+                this.pojo.imageItems = this.imageList.join(",");
+
+                axios.post(`/album/update.do`, this.pojo).then(response => {
+                    this.listImage(); //刷新列表
+                    this.formVisible = false;//关闭窗口
+                });
+                this.imageUrl = '';
+            },
+            dele(index) {
+                this.$confirm('确定要删除此记录吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.imageList.splice(index, 1);
+                    this.pojo.imageItems = this.imageList.join(",");
+                    axios.post(`/album/update.do`, this.pojo).then(response => {
+                        this.listImage(); //刷新列表
+                    });
+                })
+            },
+
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = file.response;
+            },
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG) {
+                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isJPG && isLt2M;
+            }
+        }
+    })
+</script>
+</html>

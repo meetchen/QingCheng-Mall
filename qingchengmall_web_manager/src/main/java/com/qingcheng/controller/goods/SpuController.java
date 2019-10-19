@@ -3,6 +3,7 @@ package com.qingcheng.controller.goods;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
+import com.qingcheng.pojo.goods.Goods;
 import com.qingcheng.pojo.goods.Spu;
 import com.qingcheng.service.goods.SpuService;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +58,12 @@ public class SpuController {
     @GetMapping("/delete")
     public Result delete(String id){
         spuService.delete(id);
+        return new Result();
+    }
+
+    @PostMapping("/save")
+    public Result save(@RequestBody Goods goods){
+        spuService.saveGoods(goods);
         return new Result();
     }
 
