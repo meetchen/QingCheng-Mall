@@ -42,25 +42,31 @@
   </head>
   <body class="hold-transition">
     <div id="app">
-        <li v-for="item in imageUrlList">
-            <p>{{item.url}}</p>
-        </li>
-        <el-table
-        :data="tableData"
-        style="width: 100%">
-        <el-table-column
-          prop="date"
-          label="日期"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="地址">
-        </el-table-column>
+   
+    <el-table
+      :data="imageUrlList"
+      style="width: 100%">
+      <el-table-column
+        width="180">
+        <template slot-scope="scope">
+            <img :src="scope.row.url" width="100px" height="50px" />
+        </template>
+      </el-table-column>
+
     </el-table>
+    </div>
+
+    <div class="pagination-container">
+      <el-pagination
+        class="pagiantion"
+        @size-change="fetchData"
+        @current-change="fetchData"
+        :current-page.sync="currentPage"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="size"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+      </el-pagination>
     </div>
   </body>
   <script src="/js/vue.js"></script>
@@ -84,15 +90,13 @@
         }
       },
       created() {
-        this.searchMap.id={id:getQueryString('id')}
+        
         this.fetchData()
       }, 
       methods: {
         fetchData(){
-          axios.post(`/album/findList.do?page=${this.currentPage}&size=${this.size}`,this.searchMap).then(Response=>{
-            console.log(Response.data);           
-            this.tableData=Response.data
-            this.imageUrlList=Response.data.imageItems                               
+          axios.get(`/album/findById.do?id=${getQueryString('id')}`).then(Response=>{
+            this.imageUrlList=JSON.parse(Response.data.imageItems)            
           })
         }
       }

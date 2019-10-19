@@ -8,7 +8,7 @@ import java.io.Serializable;
  *
  */
 @Table(name="tb_album")
-public class Album implements Serializable{
+public class Album  implements Serializable{
 
 	@Id
 	private Long id;//编号
