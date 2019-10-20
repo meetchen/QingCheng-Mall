@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -114,12 +115,16 @@ public class SpuServiceImpl implements SpuService {
     }
 
     /**
-     * 删除
-     *
+     * 逻辑删除
+     *  isDelete 1 已删除
+     *           0 存在
      * @param id
      */
     public void delete(String id) {
-        spuMapper.deleteByPrimaryKey(id);
+        Spu spu = new Spu();
+        spu.setId(id);
+        spu.setIsDelete("1");
+        spuMapper.updateByPrimaryKeySelective(spu);
     }
 
     /**
@@ -253,6 +258,64 @@ public class SpuServiceImpl implements SpuService {
 
     }
 
+    public void pull(String id) {
+        //修改状态
+        Spu spu = new Spu();
+        spu.setId(id);
+        spu.setIsMarketable("0");
+        spuMapper.updateByPrimaryKeySelective(spu);
+        //记录商品日志
+    }
+
+    public void put(String id) {
+        Spu spu = spuMapper.selectByPrimaryKey(id);
+        if ("1".equals(spu.getStatus())){
+            throw  new  RuntimeException("此商品未通过审核");
+        }
+        spu.setIsMarketable("1");
+        spuMapper.updateByPrimaryKeySelective(spu);
+        //记录商品日志
+
+
+    }
+
+    /**
+     * 批量上架
+     * @param ids id数组
+     * @return
+     */
+    public int putMany(String[] ids) {
+        //添加商品日志
+
+
+        //修改状态
+        Spu spu = new Spu();
+        spu.setIsMarketable("1");
+        Example example = new Example(Spu.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andIn("id", Arrays.asList(ids));
+        criteria.andEqualTo("isMarketable","0");
+        criteria.andEqualTo("status","1");
+        return spuMapper.updateByExampleSelective(spu,example);
+    }
+
+    public void recover(String id) {
+        Spu spu = new Spu();
+        spu.setId(id);
+        spu.setIsDelete("0");
+        spuMapper.updateByPrimaryKeySelective(spu);
+    }
+
+    @Transactional
+    public void realDelete(String id) {
+        Spu spu = spuMapper.selectByPrimaryKey(id);
+        if ("1".equals(spu.getIsDelete())){
+            spuMapper.deleteByPrimaryKey(id);
+        }else {
+            throw new RuntimeException("请先将商品移至回收站");
+        }
+    }
+
     /**
      * 构建查询条件
      *
@@ -356,5 +419,7 @@ public class SpuServiceImpl implements SpuService {
         }
         return example;
     }
+
+
 
 }

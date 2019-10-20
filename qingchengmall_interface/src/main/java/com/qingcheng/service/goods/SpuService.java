@@ -34,5 +34,13 @@ public interface SpuService {
 
     void audit(String id,String status,String message);
 
+    void pull(String id);
 
+    void put(String id);
+
+    int putMany(String []ids);
+
+    void recover(String id);
+
+    void realDelete(String id);
 }

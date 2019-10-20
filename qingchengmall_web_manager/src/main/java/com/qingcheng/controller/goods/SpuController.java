@@ -6,6 +6,7 @@ import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.goods.Goods;
 import com.qingcheng.pojo.goods.Spu;
 import com.qingcheng.service.goods.SpuService;
+import com.sun.javafx.collections.MappingChange;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -69,5 +70,36 @@ public class SpuController {
     @GetMapping("/findGoodById")
     public Goods findGoodById(String id){
         return spuService.findGoodsById(id);
+    }
+
+    @PostMapping("/audit")
+    public Result audit(@RequestBody Map<String,String> map){
+        spuService.audit(map.get("id"),map.get("status"),map.get("message"));
+        return new Result();
+    }
+    @GetMapping("/pull")
+    public Result pull(String id){
+        spuService.pull(id);
+        return new Result();
+    }
+
+    @GetMapping("/put")
+    public Result put(String id){
+        spuService.pull(id);
+        return new Result();
+    }
+    @GetMapping("/putMany")
+    public Result putMany(String []ids){
+        return new Result(0,"上架"+spuService.putMany(ids)+"个商品");
+    }
+    @GetMapping("/recover")
+    public Result recover(String id){
+        spuService.recover(id);
+        return new Result();
+    }
+    @GetMapping("/realDelete")
+    public Result realDelete(String id){
+        spuService.realDelete(id);
+        return new Result();
     }
 }
