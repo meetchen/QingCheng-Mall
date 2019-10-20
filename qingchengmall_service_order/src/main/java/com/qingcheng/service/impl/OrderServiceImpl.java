@@ -2,21 +2,42 @@ package com.qingcheng.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.mysql.fabric.proto.xmlrpc.AuthenticatedXmlRpcMethodCaller;
+import com.qingcheng.dao.OrderConfigMapper;
+import com.qingcheng.dao.OrderItemMapper;
+import com.qingcheng.dao.OrderLogMapper;
 import com.qingcheng.dao.OrderMapper;
 import com.qingcheng.entity.PageResult;
-import com.qingcheng.pojo.order.Order;
+import com.qingcheng.pojo.order.*;
 import com.qingcheng.service.order.OrderService;
+import com.qingcheng.util.IdWorker;
+import org.jboss.netty.util.internal.ConcurrentIdentityWeakKeyHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.code.ORDER;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.persistence.AttributeOverride;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service(interfaceClass = OrderService.class)
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private OrderLogMapper orderLogMapper;
+    @Autowired
+    private IdWorker idWorker;
+    @Autowired
+    private OrderConfigMapper orderConfigMapper;
+    @Autowired
+    private OrderItemMapper orderItemMapper;
+    @Autowired
 
     /**
      * 返回全部记录
@@ -45,6 +66,10 @@ public class OrderServiceImpl implements OrderService {
      */
     public List<Order> findList(Map<String, Object> searchMap) {
         Example example = createExample(searchMap);
+        Example.Criteria criteria = example.createCriteria();
+        if (searchMap.get("ids")!=null){
+            criteria.andIn("id", Arrays.asList((Integer [])searchMap.get("ids")));
+        }
         return orderMapper.selectByExample(example);
     }
 
@@ -88,10 +113,143 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     *  删除
+     *  逻辑删除
      * @param id
      */
     public void delete(String id) {
+
+        Order order = new Order();
+        order.setId(id);
+        order.setIsDelete("1");
+        orderMapper.updateByPrimaryKeySelective(order);
+    }
+
+    /**
+     * 批量发货
+     * @param orders
+     */
+    @Override
+    @Transactional
+    public void batchSend(List<Order> orders) {
+        for (Order order : orders) {
+            if (order.getShippingCode()==null||order.getShippingName()==null){
+                throw new RuntimeException("请选择快递公司和填写快递单号");
+            }
+        }
+        IdWorker idWorker = new IdWorker();
+        OrderLog orderLog = new OrderLog();
+        for (Order order : orders) {
+            order.setOrderStatus("3");
+            order.setConsignStatus("2");
+            order.setConsignTime(new Date());
+            orderMapper.updateByPrimaryKeySelective(order);
+            // log
+            orderLog.setId(idWorker.nextId()+"");
+            orderLog.setOperater("root");
+            orderLog.setOperateTime(new Date());
+            orderLog.setConsignStatus("2");
+            orderLog.setOrderId(order.getId());
+            orderLog.setOrderStatus("3");
+            orderLog.setConsignStatus(order.getConsignStatus());
+            // remarks???
+            orderLogMapper.insert(orderLog);
+        }
+    }
+
+    @Override
+    public void orderTimeOutLogic() {
+        OrderConfig orderConfig = orderConfigMapper.selectByPrimaryKey("1");
+        Integer orderTimeout = orderConfig.getOrderTimeout();
+        LocalDateTime localDateTime = LocalDateTime.now().minusMinutes(orderTimeout);
+
+        Example example = new Example(Order.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andLessThan("createTime",localDateTime);
+        criteria.andEqualTo("orderStatus","0");
+        criteria.andEqualTo("isDelete","0");
+
+        List<Order> orders = orderMapper.selectByExample(example);
+        OrderLog orderLog = new OrderLog();
+        for (Order order : orders) {
+            orderLog.setOperater("system");
+            orderLog.setOperateTime(new Date());
+            orderLog.setOrderStatus("4");
+            orderLog.setPayStatus(order.getPayStatus());
+            orderLog.setRemarks("超时订单，系统自动关闭");
+            orderLog.setConsignStatus(order.getConsignStatus());
+            orderLog.setOrderId(order.getId());
+            orderLogMapper.insert(orderLog);
+            order.setOrderStatus("4");
+            order.setCloseTime(new Date());
+            orderMapper.updateByPrimaryKeySelective(order);
+        }
+
+    }
+
+    /**
+     * 合并订单，逻辑删除从订单
+     * @param orderId1 主订单
+     * @param orderId2 从订单
+     */
+    @Override
+    @Transactional
+    public void merge(String orderId1, String orderId2) {
+        // 获取主从订单
+        Order order1 = orderMapper.selectByPrimaryKey(orderId1);
+        Order order2 = orderMapper.selectByPrimaryKey(orderId2);
+        //更新合并从订单信息到主订单
+        order1.setPayMoney(order1.getPayMoney()+order2.getPayMoney());
+        order1.setTotalNum(order1.getTotalNum()+order2.getTotalNum());
+        order1.setTotalMoney(order1.getTotalMoney()+order2.getTotalMoney());
+        order1.setPreMoney(order1.getPayMoney()+ order2.getPreMoney());
+        order1.setUpdateTime(new Date());
+        //修改从订单的订单详情，为主订单的订单详情
+        Example example = new Example(OrderItem.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("orderId", order2);
+        List<OrderItem> orderItems = orderItemMapper.selectByExample(example);
+        for (OrderItem orderItem : orderItems) {
+            orderItem.setOrderId(orderId1);
+            orderItemMapper.updateByPrimaryKeySelective(orderItem);
+        }
+        //逻辑删除从订单
+        delete(orderId2);
+    }
+
+    /**
+     * 拆分订单，对于每个详情订单建立主订单
+     * @param id   欲要拆分的主订单Id
+     * @param num  欲要拆分的个数
+     */
+    @Override
+    @Transactional
+    public void split(String id, String num) {
+        Example example = new Example(OrderItem.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("orderId",id);
+        List<OrderItem> orderItems = orderItemMapper.selectByExample(example);
+        if (orderItems.size()<Integer.parseInt(num)){
+            throw new RuntimeException("该订单拆分数量不得大于"+orderItems.size());
+        }
+        Order order = orderMapper.selectByPrimaryKey(id);
+        for (OrderItem orderItem : orderItems) {
+            String newId = idWorker.nextId()+"";
+            order.setId(newId);
+            order.setTotalNum(orderItem.getNum());
+            order.setTotalMoney(orderItem.getMoney());
+            order.setCreateTime(new Date());
+            order.setUpdateTime(new Date());
+            order.setPayMoney(orderItem.getPayMoney());
+            order.setTransactionId(null);
+            orderMapper.insert(order);
+            orderItem.setOrderId(newId);
+            orderItemMapper.updateByPrimaryKeySelective(orderItem);
+        }
+        delete(id);
+    }
+
+    @Override
+    public void realDelete(String id) {
         orderMapper.deleteByPrimaryKey(id);
     }
 

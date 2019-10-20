@@ -7,6 +7,7 @@ import com.qingcheng.pojo.order.ReturnOrder;
 import com.qingcheng.service.order.ReturnOrderService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.plaf.PanelUI;
 import java.util.*;
 
 @RestController
@@ -57,6 +58,13 @@ public class ReturnOrderController {
     @GetMapping("/delete")
     public Result delete(Long id){
         returnOrderService.delete(id);
+        return new Result();
+    }
+
+    @PostMapping("/rejectRefund")
+    public Result rejectRefund(String id,String remark){
+        Integer adminId=0;
+        returnOrderService.rejectRefund(id,remark,adminId);
         return new Result();
     }
 

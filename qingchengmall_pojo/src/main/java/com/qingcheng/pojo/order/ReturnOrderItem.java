@@ -24,7 +24,7 @@ public class ReturnOrderItem implements Serializable{
 
 	private Long orderId;//订单ID
 
-	private Long orderItemId;//订单明细ID
+	private String orderItemId;//订单明细ID
 
 	private Long returnOrderId;//退货订单ID
 
@@ -78,10 +78,11 @@ public class ReturnOrderItem implements Serializable{
 		this.orderId = orderId;
 	}
 
-	public Long getOrderItemId() {
+	public String getOrderItemId() {
 		return orderItemId;
 	}
-	public void setOrderItemId(Long orderItemId) {
+
+	public void setOrderItemId(String orderItemId) {
 		this.orderItemId = orderItemId;
 	}
 

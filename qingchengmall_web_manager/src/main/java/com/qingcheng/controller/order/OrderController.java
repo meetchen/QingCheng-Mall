@@ -60,4 +60,27 @@ public class OrderController {
         return new Result();
     }
 
+    @GetMapping("/split")
+    public Result split(String id, String num){
+        orderService.split(id,num);
+        return new Result();
+    }
+
+    @GetMapping("/merge")
+    public Result merge(String orderId1, String orderId2){
+        orderService.merge(orderId1,orderId2);
+        return new Result();
+    }
+
+    @GetMapping("/batchSend")
+    public Result batchSend(List<Order> orders){
+        orderService.batchSend(orders);
+        return new Result();
+    }
+
+    @GetMapping("/realDelete")
+    public Result realDelete(String id){
+        orderService.realDelete(id);
+        return new Result();
+    }
 }

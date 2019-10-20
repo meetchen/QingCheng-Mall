@@ -32,4 +32,13 @@ public interface OrderService {
 
     public void delete(String id);
 
+    void batchSend(List<Order> orders);
+
+    void orderTimeOutLogic();
+
+    void merge(String orderId1,String orderId2);
+
+    void split(String id,String num);
+
+    void realDelete(String id);
 }
