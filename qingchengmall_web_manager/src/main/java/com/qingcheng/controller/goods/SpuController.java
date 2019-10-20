@@ -42,7 +42,6 @@ public class SpuController {
         return spuService.findById(id);
     }
 
-
     @PostMapping("/add")
     public Result add(@RequestBody Spu spu){
         spuService.add(spu);
@@ -67,4 +66,8 @@ public class SpuController {
         return new Result();
     }
 
+    @GetMapping("/findGoodById")
+    public Goods findGoodById(String id){
+        return spuService.findGoodsById(id);
+    }
 }
