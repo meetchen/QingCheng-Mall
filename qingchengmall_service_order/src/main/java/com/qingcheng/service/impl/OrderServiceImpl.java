@@ -2,7 +2,6 @@ package com.qingcheng.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.mysql.fabric.proto.xmlrpc.AuthenticatedXmlRpcMethodCaller;
 import com.qingcheng.dao.OrderConfigMapper;
 import com.qingcheng.dao.OrderItemMapper;
 import com.qingcheng.dao.OrderLogMapper;
@@ -11,13 +10,10 @@ import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.order.*;
 import com.qingcheng.service.order.OrderService;
 import com.qingcheng.util.IdWorker;
-import org.jboss.netty.util.internal.ConcurrentIdentityWeakKeyHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.code.ORDER;
 import tk.mybatis.mapper.entity.Example;
 
-import javax.persistence.AttributeOverride;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,7 +33,6 @@ public class OrderServiceImpl implements OrderService {
     private OrderConfigMapper orderConfigMapper;
     @Autowired
     private OrderItemMapper orderItemMapper;
-    @Autowired
 
     /**
      * 返回全部记录
