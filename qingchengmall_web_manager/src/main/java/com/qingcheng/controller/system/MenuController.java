@@ -7,6 +7,7 @@ import com.qingcheng.pojo.system.Menu;
 import com.qingcheng.service.system.MenuService;
 import org.springframework.web.bind.annotation.*;
 
+import java.rmi.MarshalledObject;
 import java.util.*;
 
 @RestController
@@ -59,5 +60,8 @@ public class MenuController {
         menuService.delete(id);
         return new Result();
     }
-
+    @GetMapping("/findMenu")
+    public List<Map> findMenu(){
+        return menuService.findAllMenu();
+    }
 }

@@ -16,7 +16,8 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期"
         @change="fetchData()">
-    </el-date-picker>  
+    </el-date-picker>
+    <div id="main" style="width: 1500px;height:700px;"></div>
     <el-table
             :data="tableData"
             style="width: 100%">
@@ -58,6 +59,7 @@
     <script src="/js/axios.js"></script>
     <script src="/js/elementui.js"></script>
     <script src="/js/util.js"></script>
+    <script src="/js/echarts.common.min.js"></script>
     <script>
         new Vue({
             el:'#app',
@@ -74,12 +76,71 @@
                     let date1 = this.dateRange[0].Format("yyyy-MM-dd")
                     let date2 = this.dateRange[1].Format("yyyy-MM-dd")
                     axios.get(`/categoryReport/category1Count.do?date1=${date1}&date2=${date2}`).then(Response=>{
+                        let legendData = []
+                        let numData = []
+                        let moneyData = []
                         this.tableData=Response.data
                         this.totalMoney=this.totalNum=0
                         for (let index = 0; index < this.tableData.length; index++) {
                             this.totalNum+=this.tableData[index].num     
-                            this.totalMoney+=this.tableData[index].money                        
+                            this.totalMoney+=this.tableData[index].money 
+                            legendData.push(this.tableData[index].categoryName)
+                            numData.push({
+                                name:this.tableData[index].categoryName,
+                                value:this.tableData[index].num
+                            })       
+                            moneyData.push({
+                                name:this.tableData[index].categoryName,
+                                value:this.tableData[index].money
+                            })                 
                         }
+                        let myChart = echarts.init(document.getElementById('main'));
+                        option = {
+                            title : {
+                                text: '商品类目销售分析',
+                                x:'center'
+                            },
+                            tooltip : {
+                                trigger: 'item',
+                                formatter: "{a} <br/>{b} : {c} ({d}%)"
+                            },
+                            legend: {
+                                orient: 'vertical',
+                                left: 'left',
+                                data: legendData
+                            },
+                            series : [
+                                {
+                                    name: '销售量',
+                                    type: 'pie',
+                                    radius : '50%',
+                                    center: ['30%', '60%'],
+                                    data:numData,
+                                    itemStyle: {
+                                        emphasis: {
+                                            shadowBlur: 10,
+                                            shadowOffsetX: 0,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    }
+                                },
+                                {
+                                    name: '销售额',
+                                    type: 'pie',
+                                    radius : '50%',
+                                    center: ['70%', '60%'],
+                                    data:moneyData,
+                                    itemStyle: {
+                                        emphasis: {
+                                            shadowBlur: 10,
+                                            shadowOffsetX: 0,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    }
+                                }
+                            ]
+                        };
+                        myChart.setOption(option);
                     })
                 }
             },

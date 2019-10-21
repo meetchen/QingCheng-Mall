@@ -173,6 +173,7 @@ public class OrderServiceImpl implements OrderService {
             orderLog.setRemarks("超时订单，系统自动关闭");
             orderLog.setConsignStatus(order.getConsignStatus());
             orderLog.setOrderId(order.getId());
+            orderLog.setId(idWorker.nextId()+"");
             orderLogMapper.insert(orderLog);
             order.setOrderStatus("4");
             order.setCloseTime(new Date());

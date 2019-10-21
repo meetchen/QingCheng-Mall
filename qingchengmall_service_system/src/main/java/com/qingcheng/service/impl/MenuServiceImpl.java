@@ -9,8 +9,7 @@ import com.qingcheng.service.system.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class MenuServiceImpl implements MenuService {
@@ -93,6 +92,33 @@ public class MenuServiceImpl implements MenuService {
      */
     public void delete(String id) {
         menuMapper.deleteByPrimaryKey(id);
+    }
+
+    public List<Map> findAllMenu() {
+        List<Menu> menuList = findAll();
+        return findMenuListByParentId(menuList,"0");
+    }
+
+    /**
+     * 查询下级菜单
+     * @param menuList
+     * @param parentId
+     * @return
+     */
+    private List<Map> findMenuListByParentId(List<Menu> menuList,String parentId){
+        List<Map> mapList = new ArrayList<Map>();
+        for (Menu menu : menuList) {
+            if (menu.getParentId().equals(parentId)){
+                Map map = new HashMap();
+                map.put("path",menu.getId());
+                map.put("title",menu.getName());
+                map.put("icon",menu.getIcon());
+                map.put("linkUrl",menu.getUrl());
+                map.put("children",findMenuListByParentId(menuList,menu.getId()));
+                mapList.add(map);
+            }
+        }
+        return mapList;
     }
 
     /**
