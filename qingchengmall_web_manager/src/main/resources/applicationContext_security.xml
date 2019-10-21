@@ -20,6 +20,7 @@
         <form-login
                 login-page="/login.html"
                 default-target-url="/main.html"
+                authentication-success-handler-ref="loginHandler"
                 authentication-failure-url="/login.html"/>
         <!--退出登陆  /logout post-->
         <logout/>
@@ -40,4 +41,5 @@
 
     <beans:bean id="userDetailService" class="com.qingcheng.controller.UserDetailServiceImpl"></beans:bean>
     <beans:bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></beans:bean>
+    <beans:bean id="loginHandler" class="com.qingcheng.controller.AuthenticationSuccessHandlerImpl"></beans:bean>
 </beans:beans>

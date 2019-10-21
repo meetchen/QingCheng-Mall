@@ -106,7 +106,7 @@ public class LoginLogServiceImpl implements LoginLogService {
         if(searchMap!=null){
             // login_name
             if(searchMap.get("loginName")!=null && !"".equals(searchMap.get("loginName"))){
-                criteria.andLike("loginName","%"+searchMap.get("loginName")+"%");
+                criteria.andEqualTo("loginName",searchMap.get("loginName"));
             }
             // ip
             if(searchMap.get("ip")!=null && !"".equals(searchMap.get("ip"))){
