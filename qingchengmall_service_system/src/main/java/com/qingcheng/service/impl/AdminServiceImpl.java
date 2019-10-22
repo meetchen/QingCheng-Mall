@@ -4,23 +4,29 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qingcheng.dao.AdminMapper;
+import com.qingcheng.dao.AdminRoleMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.system.Admin;
+import com.qingcheng.pojo.system.AdminAdminRole;
+import com.qingcheng.pojo.system.AdminRole;
 import com.qingcheng.service.system.AdminService;
 import com.qingcheng.util.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service(interfaceClass = AdminService.class)
 public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private AdminMapper adminMapper;
     @Reference
     private BCrypt bCrypt;
+    @Autowired
+    private AdminRoleMapper adminRoleMapper;
 
     /**
      * 返回全部记录
@@ -71,24 +77,62 @@ public class AdminServiceImpl implements AdminService {
      * @param id
      * @return
      */
-    public Admin findById(Integer id) {
-        return adminMapper.selectByPrimaryKey(id);
+    public AdminAdminRole findById(Integer id) {
+        Admin admin = adminMapper.selectOneByExample(id);
+        Example ex = new Example(AdminAdminRole.class);
+        Example.Criteria criteria = ex.createCriteria();
+        criteria.andEqualTo("adminId",id);
+        List<AdminRole> adminRoles = adminRoleMapper.selectByExample(ex);
+        AdminAdminRole adminAdminRole = new AdminAdminRole();
+        admin.setPassword(null);
+        adminAdminRole.setAdmin(admin);
+        adminAdminRole.setAdminRoles(adminRoles);
+        return adminAdminRole;
     }
 
-    /**
-     * 新增
-     * @param admin
-     */
-    public void add(Admin admin) {
-        adminMapper.insert(admin);
+    @Override
+    @Transactional
+    public void add(AdminAdminRole adminAdminRole) {
+        Admin admin = adminAdminRole.getAdmin();
+        String password = admin.getPassword();
+        String gensalt = bCrypt.gensalt();
+        String newPwd = bCrypt.hashpw(password, gensalt);
+        admin.setPassword(newPwd);
+        int insert = adminMapper.insert(admin);
+        List<AdminRole> adminRoles = adminAdminRole.getAdminRoles();
+        for (AdminRole adminRole : adminRoles) {
+            adminRole.setAdminId(insert);
+            adminRoleMapper.insert(adminRole);
+        }
     }
 
+
     /**
-     * 修改
-     * @param admin
+     * 先删除用户的角色，再加入用户的角色
+     * 如果密码为空，则不作改变
+     * 不为空，加密存储
+     * @param adminAdminRole 用户 用户角色对象
      */
-    public void update(Admin admin) {
+    @Transactional
+    public void update(AdminAdminRole adminAdminRole) {
+        Admin admin = adminAdminRole.getAdmin();
+        Integer id = admin.getId();
+        Example ex = new Example(AdminRole.class);
+        Example.Criteria criteria = ex.createCriteria();
+        criteria.andEqualTo("adminId",id);
+        adminRoleMapper.deleteByExample(ex);
+        String password = admin.getPassword();
+        if (!(password==null||password.equals(""))){
+            String gensalt = bCrypt.gensalt();
+            String hashpw = bCrypt.hashpw(password, gensalt);
+            admin.setPassword(hashpw);
+        }
         adminMapper.updateByPrimaryKeySelective(admin);
+        List<AdminRole> adminRoles = adminAdminRole.getAdminRoles();
+        for (AdminRole adminRole : adminRoles) {
+            adminRole.setAdminId(id);
+            adminRoleMapper.insert(adminRole);
+        }
     }
 
     /**

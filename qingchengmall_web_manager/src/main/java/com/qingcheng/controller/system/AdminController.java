@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.system.Admin;
+import com.qingcheng.pojo.system.AdminAdminRole;
 import com.qingcheng.service.system.AdminService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -38,20 +39,20 @@ public class AdminController {
     }
 
     @GetMapping("/findById")
-    public Admin findById(Integer id){
+    public AdminAdminRole findById(Integer id){
         return adminService.findById(id);
     }
 
 
     @PostMapping("/add")
-    public Result add(@RequestBody Admin admin){
-        adminService.add(admin);
+    public Result add(@RequestBody AdminAdminRole adminAdminRole){
+        adminService.add(adminAdminRole);
         return new Result();
     }
 
     @PostMapping("/update")
-    public Result update(@RequestBody Admin admin){
-        adminService.update(admin);
+    public Result update(@RequestBody AdminAdminRole adminAdminRole){
+        adminService.update(adminAdminRole);
         return new Result();
     }
 

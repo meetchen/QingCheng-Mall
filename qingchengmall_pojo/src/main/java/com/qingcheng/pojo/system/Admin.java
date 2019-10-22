@@ -1,4 +1,6 @@
 package com.qingcheng.pojo.system;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -11,10 +13,8 @@ import java.io.Serializable;
 public class Admin implements Serializable{
 
 	@Id
-	private Integer id;//id
-
-
-	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;//id自增
 
 	private String loginName;//用户名
 
