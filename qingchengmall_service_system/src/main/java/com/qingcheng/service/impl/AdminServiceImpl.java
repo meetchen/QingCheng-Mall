@@ -99,7 +99,6 @@ public class AdminServiceImpl implements AdminService {
         adminMapper.deleteByPrimaryKey(id);
     }
 
-    @Override
     public void updatePassword(String loginName,String oldPassword, String newPassword) {
         Example example = new Example(Admin.class);
         Example.Criteria criteria = example.createCriteria();
