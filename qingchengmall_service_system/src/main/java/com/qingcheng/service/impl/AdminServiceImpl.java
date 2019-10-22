@@ -1,4 +1,5 @@
 package com.qingcheng.service.impl;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -6,6 +7,7 @@ import com.qingcheng.dao.AdminMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.system.Admin;
 import com.qingcheng.service.system.AdminService;
+import com.qingcheng.util.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
 
@@ -17,6 +19,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private AdminMapper adminMapper;
+    @Reference
+    private BCrypt bCrypt;
 
     /**
      * 返回全部记录
@@ -93,6 +97,24 @@ public class AdminServiceImpl implements AdminService {
      */
     public void delete(Integer id) {
         adminMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public void updatePassword(String loginName,String oldPassword, String newPassword) {
+        Example example = new Example(Admin.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("loginName",loginName);
+        Admin admin = adminMapper.selectOneByExample(example);
+        String password = admin.getPassword();
+        boolean checkpw = bCrypt.checkpw(oldPassword, password);
+        if (checkpw){
+            String gensalt = bCrypt.gensalt();
+            password=bCrypt.hashpw(newPassword,gensalt);
+            admin.setPassword(password);
+            adminMapper.updateByPrimaryKeySelective(admin);
+        }else {
+            throw new RuntimeException("原密码错误");
+        }
     }
 
     /**

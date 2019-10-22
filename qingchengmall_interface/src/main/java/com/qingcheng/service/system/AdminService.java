@@ -32,4 +32,6 @@ public interface AdminService {
 
     public void delete(Integer id);
 
+    void updatePassword(String loginName,String oldPassword,String newPassword);
+
 }

@@ -5,6 +5,7 @@ import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.system.Admin;
 import com.qingcheng.service.system.AdminService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -60,4 +61,10 @@ public class AdminController {
         return new Result();
     }
 
+    @GetMapping("/updatePassword")
+    public Result updatePassword(String oldPassword,String newPassword){
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        adminService.updatePassword(name,oldPassword,newPassword);
+        return new Result();
+    }
 }
