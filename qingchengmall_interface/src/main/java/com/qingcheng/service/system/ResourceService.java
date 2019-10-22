@@ -1,6 +1,7 @@
 package com.qingcheng.service.system;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.system.Resource;
+import com.qingcheng.pojo.system.ResourceRoleResource;
 
 import java.util.*;
 
@@ -32,4 +33,5 @@ public interface ResourceService {
 
     public void delete(Integer id);
 
+    void insertResourceServiceImpl(ResourceRoleResource resourceRoleResource);
 }

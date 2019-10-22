@@ -5,6 +5,8 @@ import com.github.pagehelper.PageHelper;
 import com.qingcheng.dao.ResourceMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.system.Resource;
+import com.qingcheng.pojo.system.ResourceRoleResource;
+import com.qingcheng.pojo.system.RoleResource;
 import com.qingcheng.service.system.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
@@ -17,6 +19,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Autowired
     private ResourceMapper resourceMapper;
+    @Autowired
+    private RoleResource roleResource;
 
     /**
      * 返回全部记录
@@ -93,6 +97,12 @@ public class ResourceServiceImpl implements ResourceService {
      */
     public void delete(Integer id) {
         resourceMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public void insertResourceServiceImpl(ResourceRoleResource resourceRoleResource) {
+        String userId = resourceRoleResource.getUserId();
+
     }
 
     /**
