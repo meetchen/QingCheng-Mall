@@ -35,4 +35,6 @@ public interface AdminService {
 
     void updatePassword(String loginName,String oldPassword,String newPassword);
 
+    List<String> findResKeyByLoginName(String username);
+
 }

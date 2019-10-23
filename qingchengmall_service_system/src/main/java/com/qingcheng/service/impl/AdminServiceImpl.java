@@ -160,6 +160,11 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    @Override
+    public List<String> findResKeyByLoginName(String username) {
+        return adminMapper.findResKeyByLoginName(username);
+    }
+
     /**
      * 构建查询条件
      * @param searchMap
