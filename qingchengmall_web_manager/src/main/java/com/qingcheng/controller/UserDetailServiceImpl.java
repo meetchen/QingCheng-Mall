@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         System.out.println("经过了UserDetailServiceImpl");
-
+        List<GrantedAuthority> grantedAuths = new ArrayList<GrantedAuthority>();
+        grantedAuths.add(new SimpleGrantedAuthority("goods_add"));
+        grantedAuths.add(new SimpleGrantedAuthority("goods_edit"));
         Map map=new HashMap<>();
         map.put("loginName",s);
         map.put("status","1");
