@@ -15,10 +15,10 @@
     <http>
         <!--所有资源必须有ROLE_ADMIN角色才可以访问-->
         <intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')"></intercept-url>
-
+<!--
         <intercept-url pattern="/*/find*.do" access="hasAnyAuthority()"/>
         <intercept-url pattern="/brand/*.do" access="hasAuthority('brand')"/>
-        <intercept-url pattern="/spu/save.do" access="hasAnyAuthority('goods_add','goods_edit')"/>
+        <intercept-url pattern="/spu/save.do" access="hasAnyAuthority('goods_add','goods_edit')"/>-->
 
         <!--当前的工程实现表单登陆-->
         <form-login
@@ -36,7 +36,7 @@
         </headers>
     </http>
     <!--开启注解-->
-    <global-method-security pre-post-annotations="enabled"/>
+<!--    <global-method-security pre-post-annotations="enabled"/>-->
     <!--认证管理器-->
     <authentication-manager>
         <authentication-provider user-service-ref="userDetailService">

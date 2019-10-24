@@ -160,7 +160,7 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
-    @Override
+
     public List<String> findResKeyByLoginName(String username) {
         return adminMapper.findResKeyByLoginName(username);
     }
