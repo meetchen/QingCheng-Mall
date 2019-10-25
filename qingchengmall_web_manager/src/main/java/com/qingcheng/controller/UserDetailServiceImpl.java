@@ -5,13 +5,12 @@ import com.qingcheng.pojo.system.Admin;
 import com.qingcheng.service.system.AdminService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
- import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +25,17 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         System.out.println("经过了UserDetailServiceImpl");
 
-        Map map=new HashMap<>();
-        map.put("loginName",name);
-        map.put("status","1");
+        Map map = new HashMap<>();
+        map.put("loginName", name);
+        map.put("status", "1");
         List<Admin> list = adminService.findList(map);
-        if(list.size()==0){
+        if (list.size() == 0) {
             return null;
         }
         //实际项目中应该从数据库中提取用户的角色列表
-        List<GrantedAuthority> grantedAuthorities=new ArrayList<GrantedAuthority>();
-        grantedAuthorities.add( new SimpleGrantedAuthority("ROLE_ADMIN"));
-        return new User(name,list.get(0).getPassword(),grantedAuthorities);
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        return new User(name, list.get(0).getPassword(), grantedAuthorities);
 
 /*        List<GrantedAuthority>  grantedAuthorities = new ArrayList<GrantedAuthority>();
         List<String> resKeyByLoginName = adminService.findResKeyByLoginName(name);
