@@ -18,10 +18,7 @@ public class CitiesServiceImpl implements CitiesService {
     @Autowired
     private CitiesMapper citiesMapper;
 
-    /**
-     * 返回全部记录
-     * @return
-     */
+
     public List<Cities> findAll() {
         return citiesMapper.selectAll();
     }
