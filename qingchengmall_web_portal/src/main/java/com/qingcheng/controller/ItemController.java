@@ -53,8 +53,10 @@ public class ItemController {
         //sku地址列表
         Map<String, String> urlMap = new HashMap<>();
         for (Sku sku : skuList) {
-            String jsonString = JSON.toJSONString(JSON.parseObject(sku.getSpec()), SerializerFeature.MapSortField);
-            urlMap.put(jsonString,sku.getId()+".html");
+            if ("1".equals(sku.getStatus())){
+                String jsonString = JSON.toJSONString(JSON.parseObject(sku.getSpec()), SerializerFeature.MapSortField);
+                urlMap.put(jsonString,sku.getId()+".html");
+            }
         }
 
         //批量生成页面
@@ -73,7 +75,7 @@ public class ItemController {
             //规格列表
             Map<String,String> specItems = (Map) JSON.parseObject(sku.getSpec());
             dateModel.put("specItems",specItems);
-            Map<String,List> specMap = (Map)JSON.parseObject(sku.getSpec());
+            Map<String,List> specMap = (Map)JSON.parseObject(spu.getSpecItems());
             for (String key : specMap.keySet()) {
                 List<String> list = specMap.get(key);
                 List<Map> mapList = new ArrayList<>();
@@ -93,6 +95,7 @@ public class ItemController {
                 }
                 specMap.put(key,mapList);
             }
+            dateModel.put("specMap",specMap);
             context.setVariables(dateModel);
             // 2.准备文件
             File dir = new File(pagePath);
