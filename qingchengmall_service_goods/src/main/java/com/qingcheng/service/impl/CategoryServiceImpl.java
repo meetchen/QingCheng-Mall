@@ -6,7 +6,9 @@ import com.qingcheng.dao.CategoryMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.goods.Category;
 import com.qingcheng.service.goods.CategoryService;
+import com.qingcheng.util.CacheKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 返回全部记录
@@ -105,13 +109,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public List<Map> findCategoryTree() {
+        return (List<Map>) redisTemplate.boundValueOps(CacheKey.CATEGROT_TREE).get();
+    }
+
+    public void saveCategoryTreeToRedis() {
         //先查询符合条件的记录 ，即 isShow=1
         Example example = new Example(Category.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("isShow","1");
         example.setOrderByClause("seq");
         List<Category> categories = categoryMapper.selectByExample(example);
-        return findByParentId(categories,0);
+        List<Map> categoryTree = findCategoryTree();
+        redisTemplate.boundValueOps(CacheKey.CATEGROT_TREE).set(categoryTree);
     }
 
     private List<Map> findByParentId(List<Category> categories,Integer parentId){

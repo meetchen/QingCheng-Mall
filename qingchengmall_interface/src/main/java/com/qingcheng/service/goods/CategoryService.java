@@ -35,4 +35,6 @@ public interface CategoryService {
 
     public List<Map> findCategoryTree();
 
+    void saveCategoryTreeToRedis();
+
 }
