@@ -31,7 +31,7 @@ public class IndexController {
         //分类导航
         List<Map> categoryList =  categoryService.findCategoryTree();
         model.addAttribute("categoryList",categoryList);
-
+        System.out.println();
         return "index";
     }
 
