@@ -18,10 +18,6 @@ public class BrandServiceImpl implements BrandService {
     @Autowired
     private BrandMapper brandMapper;
 
-    /**
-     * 返回全部记录
-     * @return
-     */
     public List<Brand> findAll() {
         return brandMapper.selectAll();
     }
